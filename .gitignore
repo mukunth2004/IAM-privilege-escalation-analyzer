@@ -7,8 +7,9 @@ __pycache__/
 venv/
 .venv/
 
-# Generated output
+# Generated output (ad-hoc renders), but keep curated example images in docs/
 *.png
+!docs/*.png
 
 # OS / editor
 .DS_Store

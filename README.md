@@ -11,6 +11,10 @@ and renders the result.
 
 > Course project for DD2391 (Cybersecurity Project), KTH Royal Institute of Technology.
 
+![Escalation graph — escalation paths highlighted by severity](docs/example_full.png)
+
+*Escalation paths detected in a sample account: red = High, amber = Medium, gray = no path; each edge is labeled with the IAM permission that enables the hop.*
+
 ## Features
 
 - **23 escalation techniques** across five families (policy self-grant, credential

@@ -1,0 +1,122 @@
+{
+  "identities": [
+    {
+      "name": "alice",
+      "type": "user",
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "lambda:CreateFunction",
+            "Resource": "*"
+          },
+          {
+            "Effect": "Allow",
+            "Action": "iam:PassRole",
+            "Resource": "arn:aws:iam::123456789012:role/admin-role"
+          }
+        ]
+      }
+    },
+    {
+      "name": "admin-role",
+      "type": "role",
+      "policy": {
+        "Statement": [{ "Effect": "Allow", "Action": "*", "Resource": "*" }]
+      },
+      "trust_policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Principal": { "Service": "lambda.amazonaws.com" },
+            "Action": "sts:AssumeRole"
+          }
+        ]
+      }
+    },
+    {
+      "name": "bob",
+      "type": "user",
+      "policy": {
+        "Statement": [
+          { "Effect": "Allow", "Action": "s3:GetObject", "Resource": "*" }
+        ]
+      }
+    },
+    {
+      "name": "carol",
+      "type": "user",
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "sts:AssumeRole",
+            "Resource": "arn:aws:iam::123456789012:role/deploy-role"
+          }
+        ]
+      }
+    },
+    {
+      "name": "deploy-role",
+      "type": "role",
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "iam:AttachRolePolicy",
+            "Resource": "*"
+          }
+        ]
+      },
+      "trust_policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Principal": {
+              "AWS": [
+                "arn:aws:iam::123456789012:user/carol",
+                "arn:aws:iam::123456789012:role/stage-role"
+              ]
+            },
+            "Action": "sts:AssumeRole"
+          }
+        ]
+      }
+    },
+    {
+      "name": "dave",
+      "type": "user",
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "sts:AssumeRole",
+            "Resource": "arn:aws:iam::123456789012:role/stage-role"
+          }
+        ]
+      }
+    },
+    {
+      "name": "stage-role",
+      "type": "role",
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "sts:AssumeRole",
+            "Resource": "arn:aws:iam::123456789012:role/deploy-role"
+          }
+        ]
+      },
+      "trust_policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Principal": { "AWS": "arn:aws:iam::123456789012:user/dave" },
+            "Action": "sts:AssumeRole"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "identities": [
+    { "name": "alice", "type": "user",
+      "policy": { "Statement": [
+        { "Effect": "Allow", "Action": "lambda:CreateFunction", "Resource": "*" },
+        { "Effect": "Allow", "Action": "iam:PassRole", "Resource": "arn:aws:iam::123456789012:role/admin-role" }
+      ] } },
+
+    { "name": "admin-role", "type": "role",
+      "policy": { "Statement": [ { "Effect": "Allow", "Action": "*", "Resource": "*" } ] },
+      "trust_policy": { "Statement": [ { "Effect": "Allow",
+        "Principal": { "Service": "lambda.amazonaws.com" }, "Action": "sts:AssumeRole" } ] } },
+
+    { "name": "bob", "type": "user",
+      "policy": { "Statement": [ { "Effect": "Allow", "Action": "s3:GetObject", "Resource": "*" } ] } },
+
+    { "name": "carol", "type": "user",
+      "policy": { "Statement": [ { "Effect": "Allow", "Action": "sts:AssumeRole",
+        "Resource": "arn:aws:iam::123456789012:role/deploy-role" } ] } },
+
+    { "name": "deploy-role", "type": "role",
+      "policy": { "Statement": [ { "Effect": "Allow", "Action": "iam:AttachRolePolicy", "Resource": "*" } ] },
+      "trust_policy": { "Statement": [ { "Effect": "Allow",
+        "Principal": { "AWS": [
+          "arn:aws:iam::123456789012:user/carol",
+          "arn:aws:iam::123456789012:role/stage-role"
+        ] }, "Action": "sts:AssumeRole" } ] } },
+
+    { "name": "dave", "type": "user",
+      "policy": { "Statement": [ { "Effect": "Allow", "Action": "sts:AssumeRole",
+        "Resource": "arn:aws:iam::123456789012:role/stage-role" } ] } },
+
+    { "name": "stage-role", "type": "role",
+      "policy": { "Statement": [ { "Effect": "Allow", "Action": "sts:AssumeRole",
+        "Resource": "arn:aws:iam::123456789012:role/deploy-role" } ] },
+      "trust_policy": { "Statement": [ { "Effect": "Allow",
+        "Principal": { "AWS": "arn:aws:iam::123456789012:user/dave" }, "Action": "sts:AssumeRole" } ] } },
+
+    { "name": "ec2attacker", "type": "user",
+      "policy": { "Statement": [
+        { "Effect": "Allow", "Action": "ec2:RunInstances", "Resource": "*" },
+        { "Effect": "Allow", "Action": "iam:PassRole", "Resource": "arn:aws:iam::123456789012:role/ec2-role" }
+      ] } },
+
+    { "name": "ec2-role", "type": "role",
+      "policy": { "Statement": [ { "Effect": "Allow", "Action": "*", "Resource": "*" } ] },
+      "trust_policy": { "Statement": [ { "Effect": "Allow",
+        "Principal": { "Service": "ec2.amazonaws.com" }, "Action": "sts:AssumeRole" } ] } },
+
+    { "name": "cfnattacker", "type": "user",
+      "policy": { "Statement": [
+        { "Effect": "Allow", "Action": "cloudformation:CreateStack", "Resource": "*" },
+        { "Effect": "Allow", "Action": "iam:PassRole", "Resource": "arn:aws:iam::123456789012:role/cfn-role" }
+      ] } },
+
+    { "name": "cfn-role", "type": "role",
+      "policy": { "Statement": [ { "Effect": "Allow", "Action": "*", "Resource": "*" } ] },
+      "trust_policy": { "Statement": [ { "Effect": "Allow",
+        "Principal": { "Service": "cloudformation.amazonaws.com" }, "Action": "sts:AssumeRole" } ] } },
+
+    { "name": "keythief", "type": "user",
+      "policy": { "Statement": [ { "Effect": "Allow", "Action": "iam:CreateAccessKey",
+        "Resource": "arn:aws:iam::123456789012:user/alice" } ] } },
+
+    { "name": "attacher", "type": "user",
+      "policy": { "Statement": [ { "Effect": "Allow", "Action": "iam:AttachUserPolicy", "Resource": "*" } ] } },
+
+    { "name": "versioner", "type": "user",
+      "policy": { "Statement": [ { "Effect": "Allow", "Action": "iam:CreatePolicyVersion", "Resource": "*" } ] } },
+
+    { "name": "trustmod", "type": "user",
+      "policy": { "Statement": [ { "Effect": "Allow", "Action": "iam:UpdateAssumeRolePolicy",
+        "Resource": "arn:aws:iam::123456789012:role/admin-role" } ] } },
+
+    { "name": "joiner", "type": "user",
+      "policy": { "Statement": [ { "Effect": "Allow", "Action": "iam:AddUserToGroup", "Resource": "*" } ] } },
+
+    { "name": "admins", "type": "group",
+      "policy": { "Statement": [ { "Effect": "Allow", "Action": "*", "Resource": "*" } ] } }
+  ]
+}

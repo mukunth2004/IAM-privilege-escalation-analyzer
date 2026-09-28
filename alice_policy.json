@@ -1,0 +1,20 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": ["lambda:CreateFunction", "lambda:InvokeFunction"],
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": "iam:PassRole",
+      "Resource": "arn:aws:iam::123456789012:role/admin-role"
+    },
+    {
+      "Effect": "Deny",
+      "Action": "iam:DeleteRole",
+      "Resource": "*"
+    }
+  ]
+}

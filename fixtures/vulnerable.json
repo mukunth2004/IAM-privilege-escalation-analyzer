@@ -1,0 +1,664 @@
+{
+  "account_id": "123456789012",
+  "identities": [
+    {
+      "name": "admin-role",
+      "type": "role",
+      "expect": false,
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "*",
+            "Resource": "*"
+          }
+        ]
+      },
+      "trust_policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Principal": {
+              "Service": "lambda.amazonaws.com"
+            },
+            "Action": "sts:AssumeRole"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ec2-role",
+      "type": "role",
+      "expect": false,
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "*",
+            "Resource": "*"
+          }
+        ]
+      },
+      "trust_policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Principal": {
+              "Service": "ec2.amazonaws.com"
+            },
+            "Action": "sts:AssumeRole"
+          }
+        ]
+      }
+    },
+    {
+      "name": "cfn-role",
+      "type": "role",
+      "expect": false,
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "*",
+            "Resource": "*"
+          }
+        ]
+      },
+      "trust_policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Principal": {
+              "Service": "cloudformation.amazonaws.com"
+            },
+            "Action": "sts:AssumeRole"
+          }
+        ]
+      }
+    },
+    {
+      "name": "glue-role",
+      "type": "role",
+      "expect": false,
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "*",
+            "Resource": "*"
+          }
+        ]
+      },
+      "trust_policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Principal": {
+              "Service": "glue.amazonaws.com"
+            },
+            "Action": "sts:AssumeRole"
+          }
+        ]
+      }
+    },
+    {
+      "name": "dp-role",
+      "type": "role",
+      "expect": false,
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "*",
+            "Resource": "*"
+          }
+        ]
+      },
+      "trust_policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Principal": {
+              "Service": "datapipeline.amazonaws.com"
+            },
+            "Action": "sts:AssumeRole"
+          }
+        ]
+      }
+    },
+    {
+      "name": "sm-role",
+      "type": "role",
+      "expect": false,
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "*",
+            "Resource": "*"
+          }
+        ]
+      },
+      "trust_policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Principal": {
+              "Service": "sagemaker.amazonaws.com"
+            },
+            "Action": "sts:AssumeRole"
+          }
+        ]
+      }
+    },
+    {
+      "name": "cb-role",
+      "type": "role",
+      "expect": false,
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "*",
+            "Resource": "*"
+          }
+        ]
+      },
+      "trust_policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Principal": {
+              "Service": "codebuild.amazonaws.com"
+            },
+            "Action": "sts:AssumeRole"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ecs-role",
+      "type": "role",
+      "expect": false,
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "*",
+            "Resource": "*"
+          }
+        ]
+      },
+      "trust_policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Principal": {
+              "Service": "ecs-tasks.amazonaws.com"
+            },
+            "Action": "sts:AssumeRole"
+          }
+        ]
+      }
+    },
+    {
+      "name": "admins",
+      "type": "group",
+      "expect": false,
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "*",
+            "Resource": "*"
+          }
+        ]
+      }
+    },
+    {
+      "name": "bob",
+      "type": "user",
+      "expect": false,
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "s3:GetObject",
+            "Resource": "*"
+          }
+        ]
+      }
+    },
+    {
+      "name": "attacher",
+      "type": "user",
+      "expect": true,
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "iam:AttachUserPolicy",
+            "Resource": "*"
+          }
+        ]
+      }
+    },
+    {
+      "name": "group_attacher",
+      "type": "user",
+      "expect": true,
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "iam:AttachGroupPolicy",
+            "Resource": "*"
+          }
+        ]
+      }
+    },
+    {
+      "name": "put_user",
+      "type": "user",
+      "expect": true,
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "iam:PutUserPolicy",
+            "Resource": "*"
+          }
+        ]
+      }
+    },
+    {
+      "name": "put_group",
+      "type": "user",
+      "expect": true,
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "iam:PutGroupPolicy",
+            "Resource": "*"
+          }
+        ]
+      }
+    },
+    {
+      "name": "versioner",
+      "type": "user",
+      "expect": true,
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "iam:CreatePolicyVersion",
+            "Resource": "*"
+          }
+        ]
+      }
+    },
+    {
+      "name": "defaulter",
+      "type": "user",
+      "expect": true,
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "iam:SetDefaultPolicyVersion",
+            "Resource": "*"
+          }
+        ]
+      }
+    },
+    {
+      "name": "joiner",
+      "type": "user",
+      "expect": true,
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "iam:AddUserToGroup",
+            "Resource": "*"
+          }
+        ]
+      }
+    },
+    {
+      "name": "deploy-role",
+      "type": "role",
+      "expect": true,
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "iam:AttachRolePolicy",
+            "Resource": "*"
+          }
+        ]
+      },
+      "trust_policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Principal": {
+              "AWS": [
+                "arn:aws:iam::123456789012:user/carol",
+                "arn:aws:iam::123456789012:role/stage-role"
+              ]
+            },
+            "Action": "sts:AssumeRole"
+          }
+        ]
+      }
+    },
+    {
+      "name": "pr-role",
+      "type": "role",
+      "expect": true,
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "iam:PutRolePolicy",
+            "Resource": "*"
+          }
+        ]
+      },
+      "trust_policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Principal": {
+              "Service": "ec2.amazonaws.com"
+            },
+            "Action": "sts:AssumeRole"
+          }
+        ]
+      }
+    },
+    {
+      "name": "keythief",
+      "type": "user",
+      "expect": true,
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "iam:CreateAccessKey",
+            "Resource": "arn:aws:iam::123456789012:user/alice"
+          }
+        ]
+      }
+    },
+    {
+      "name": "login_creator",
+      "type": "user",
+      "expect": true,
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "iam:CreateLoginProfile",
+            "Resource": "arn:aws:iam::123456789012:user/alice"
+          }
+        ]
+      }
+    },
+    {
+      "name": "login_updater",
+      "type": "user",
+      "expect": true,
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "iam:UpdateLoginProfile",
+            "Resource": "arn:aws:iam::123456789012:user/alice"
+          }
+        ]
+      }
+    },
+    {
+      "name": "trustmod",
+      "type": "user",
+      "expect": true,
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "iam:UpdateAssumeRolePolicy",
+            "Resource": "arn:aws:iam::123456789012:role/admin-role"
+          }
+        ]
+      }
+    },
+    {
+      "name": "alice",
+      "type": "user",
+      "expect": true,
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "lambda:CreateFunction",
+            "Resource": "*"
+          },
+          {
+            "Effect": "Allow",
+            "Action": "iam:PassRole",
+            "Resource": "arn:aws:iam::123456789012:role/admin-role"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ec2attacker",
+      "type": "user",
+      "expect": true,
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "ec2:RunInstances",
+            "Resource": "*"
+          },
+          {
+            "Effect": "Allow",
+            "Action": "iam:PassRole",
+            "Resource": "arn:aws:iam::123456789012:role/ec2-role"
+          }
+        ]
+      }
+    },
+    {
+      "name": "cfnattacker",
+      "type": "user",
+      "expect": true,
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "cloudformation:CreateStack",
+            "Resource": "*"
+          },
+          {
+            "Effect": "Allow",
+            "Action": "iam:PassRole",
+            "Resource": "arn:aws:iam::123456789012:role/cfn-role"
+          }
+        ]
+      }
+    },
+    {
+      "name": "glueattacker",
+      "type": "user",
+      "expect": true,
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "glue:CreateDevEndpoint",
+            "Resource": "*"
+          },
+          {
+            "Effect": "Allow",
+            "Action": "iam:PassRole",
+            "Resource": "arn:aws:iam::123456789012:role/glue-role"
+          }
+        ]
+      }
+    },
+    {
+      "name": "dpattacker",
+      "type": "user",
+      "expect": true,
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "datapipeline:CreatePipeline",
+            "Resource": "*"
+          },
+          {
+            "Effect": "Allow",
+            "Action": "iam:PassRole",
+            "Resource": "arn:aws:iam::123456789012:role/dp-role"
+          }
+        ]
+      }
+    },
+    {
+      "name": "smattacker",
+      "type": "user",
+      "expect": true,
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "sagemaker:CreateNotebookInstance",
+            "Resource": "*"
+          },
+          {
+            "Effect": "Allow",
+            "Action": "iam:PassRole",
+            "Resource": "arn:aws:iam::123456789012:role/sm-role"
+          }
+        ]
+      }
+    },
+    {
+      "name": "cbattacker",
+      "type": "user",
+      "expect": true,
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "codebuild:CreateProject",
+            "Resource": "*"
+          },
+          {
+            "Effect": "Allow",
+            "Action": "iam:PassRole",
+            "Resource": "arn:aws:iam::123456789012:role/cb-role"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ecsattacker",
+      "type": "user",
+      "expect": true,
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "ecs:RegisterTaskDefinition",
+            "Resource": "*"
+          },
+          {
+            "Effect": "Allow",
+            "Action": "ecs:RunTask",
+            "Resource": "*"
+          },
+          {
+            "Effect": "Allow",
+            "Action": "iam:PassRole",
+            "Resource": "arn:aws:iam::123456789012:role/ecs-role"
+          }
+        ]
+      }
+    },
+    {
+      "name": "codehijacker",
+      "type": "user",
+      "expect": true,
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "lambda:UpdateFunctionCode",
+            "Resource": "*"
+          }
+        ]
+      }
+    },
+    {
+      "name": "carol",
+      "type": "user",
+      "expect": true,
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "sts:AssumeRole",
+            "Resource": "arn:aws:iam::123456789012:role/deploy-role"
+          }
+        ]
+      }
+    },
+    {
+      "name": "dave",
+      "type": "user",
+      "expect": true,
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "sts:AssumeRole",
+            "Resource": "arn:aws:iam::123456789012:role/stage-role"
+          }
+        ]
+      }
+    },
+    {
+      "name": "stage-role",
+      "type": "role",
+      "expect": true,
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "sts:AssumeRole",
+            "Resource": "arn:aws:iam::123456789012:role/deploy-role"
+          }
+        ]
+      },
+      "trust_policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Principal": {
+              "AWS": ["arn:aws:iam::123456789012:user/dave"]
+            },
+            "Action": "sts:AssumeRole"
+          }
+        ]
+      }
+    }
+  ]
+}

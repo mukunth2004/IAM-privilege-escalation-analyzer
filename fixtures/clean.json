@@ -1,0 +1,96 @@
+{
+  "account_id": "123456789012",
+  "identities": [
+    {
+      "name": "reader",
+      "type": "user",
+      "expect": false,
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "s3:GetObject",
+            "Resource": "*"
+          },
+          {
+            "Effect": "Allow",
+            "Action": "s3:ListBucket",
+            "Resource": "*"
+          }
+        ]
+      }
+    },
+    {
+      "name": "watcher",
+      "type": "user",
+      "expect": false,
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "cloudwatch:GetMetricData",
+            "Resource": "*"
+          },
+          {
+            "Effect": "Allow",
+            "Action": "logs:GetLogEvents",
+            "Resource": "*"
+          }
+        ]
+      }
+    },
+    {
+      "name": "half1",
+      "type": "user",
+      "expect": false,
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "lambda:CreateFunction",
+            "Resource": "*"
+          }
+        ]
+      }
+    },
+    {
+      "name": "half2",
+      "type": "user",
+      "expect": false,
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "iam:PassRole",
+            "Resource": "arn:aws:iam::123456789012:role/some-role"
+          }
+        ]
+      }
+    },
+    {
+      "name": "scoped-role",
+      "type": "role",
+      "expect": false,
+      "policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "s3:GetObject",
+            "Resource": "*"
+          }
+        ]
+      },
+      "trust_policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Principal": {
+              "Service": "ec2.amazonaws.com"
+            },
+            "Action": "sts:AssumeRole"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environment
+venv/
+.venv/
+
+# Generated output
+*.png
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/

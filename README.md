@@ -35,7 +35,7 @@ and renders the result.
 | Stage | File | What it does |
 |-------|------|--------------|
 | 1. Parse | `parser.py` | IAM policy JSON → queryable permission facts (`allows()`) |
-| 2. Graph | `graph.py` | build the "who can control whom" graph + path search |
+| 2. Graph | `graph_analyser.py` | build the "who can control whom" graph + path search |
 | 3. Rules | `rules.py` | 23 escalation-technique rules |
 | 4. Score | `scoring.py` | High / Medium / Low per path |
 | 5. Visualize | `visualize.py` | render the severity graph to PNG |
@@ -57,7 +57,7 @@ The parser has no third-party dependencies.
 
 ```bash
 # Detect escalation paths in an account and print them, ranked by severity
-python3 graph.py account_full.json
+python3 graph_analyser.py account_full.json
 
 # Render the findings as a colored graph
 python3 visualize.py account.json escalation_graph.png

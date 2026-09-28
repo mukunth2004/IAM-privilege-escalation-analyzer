@@ -18,7 +18,7 @@ Run:  python3 evaluate.py fixtures/vulnerable.json
 import json
 import sys
 
-from graph import load_identities, build_graph, find_escalations
+from graph_analyser import load_identities, build_graph, find_escalations
 from rules import _RULES, is_admin, registered_rules
 
 

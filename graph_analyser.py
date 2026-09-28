@@ -1,54 +1,92 @@
-import matplotlib.pyplot as plt
+"""
+Build the control graph and search it for privilege-escalation paths.
+
+An edge A -> B means "A can end up acting as B".
+An escalation is any path from an identity to the ADMIN node.
+
+Run:  python graph_analyser.py [account.json]
+"""
+
+import json
+import sys
+
 import networkx as nx
 
-# TODO: replace with the json parser output
-IDENTITIES = {
-    "user-A": ["lambda:CreateFunction", "iam:PassRole"],
-    "lambda-exec-role": ["*"],
-    "user-B": ["s3:GetObject"],
-}
+from parser import parse
+from rules import _RULES, ADMIN, is_admin
+from scoring import severity
+
+
+def load_identities(path):
+    with open(path) as f:
+        data = json.load(f)
+    return {
+        item["name"]: {
+            "type": item["type"],
+            "statements": parse(item["policy"]),
+            "trust_policy": item.get("trust_policy"),
+        }
+        for item in data["identities"]
+    }
 
 
 def build_graph(identities):
-    g = nx.DiGraph()
-    for name, permissions in identities.items():
-        g.add_node(name, permissions=permissions)
+    graph = nx.DiGraph()
+    graph.add_node(ADMIN, type="target")
+    for name, identity in identities.items():
+        graph.add_node(name, type=identity["type"])
 
-    for name, permissions in identities.items():
-        if "iam:PassRole" in permissions and "lambda:CreateFunction" in permissions:
-            for target, target_permissions in identities.items():
-                if target != name and "*" in target_permissions:
-                    g.add_edge(name, target, permission="lambda:CreateFunction + iam:PassRole")
-        # TODO: add more rules for other types of privilege escalation
-    return g
+    for name, identity in identities.items():
+        if is_admin(identity):
+            graph.add_edge(name, ADMIN, label="is administrator")
+            continue
+        for rule in _RULES:
+            for target, label in rule(name, identity, identities):
+                graph.add_edge(name, target, label=label)
+
+    return graph
 
 
-def visualise(g, path=None):
-    pos = nx.spring_layout(g, seed=1)
-    nx.draw_networkx_nodes(g, pos, node_color="lightsteelblue", node_size=2500)
-    nx.draw_networkx_labels(g, pos, font_size=8)
-    nx.draw_networkx_edges(g, pos, edge_color="black", width=1, node_size=2500)
-    labels = {(u, v): d["permission"].replace(" + ", "\n+ ") for u, v, d in g.edges(data=True)}
-    nx.draw_networkx_edge_labels(
-        g,
-        pos,
-        edge_labels=labels,
-        font_size=7,
-        rotate=False,
+def find_escalations(graph, identities):
+    """Shortest path to admin for every identity that is not already admin."""
+    paths = [
+        nx.shortest_path(graph, name, ADMIN)
+        for name, identity in identities.items()
+        if not is_admin(identity) and nx.has_path(graph, name, ADMIN)
+    ]
+    return sorted(paths, key=len)
+
+
+def path_severity(path):
+    return severity(len(path) - 1, "admin")
+
+
+def describe(graph, path):
+    lines = [path[0]]
+    for source, target in zip(path, path[1:]):
+        label = graph.edges[source, target]["label"]
+        node = "effective ADMIN" if target == ADMIN else target
+        lines.append(f"        --[ {label} ]-->  {node}")
+    return "\n".join(lines)
+
+
+def print_report(graph, paths):
+    print(
+        f"Graph: {graph.number_of_nodes()} nodes, {graph.number_of_edges()} edges, "
+        f"{len(_RULES)} rules\n"
     )
-    plt.title("IAM identity graph")
-    plt.margins(0.15)
-    plt.axis("off")
-    plt.tight_layout()
-    if path:
-        plt.savefig(path, dpi=150)
-    else:
-        plt.show()
+    if not paths:
+        print("No escalation paths found.")
+        return
+    print(f"{len(paths)} identit(ies) can reach ADMIN:\n")
+    for path in paths:
+        print(
+            f"  [{path_severity(path):6}] ({len(path) - 1}-hop) {describe(graph, path)}\n"
+        )
 
 
 if __name__ == "__main__":
-    graph = build_graph(IDENTITIES)
-    print(f"{graph.number_of_nodes()} identities, {graph.number_of_edges()} edges")
-    for source, target, data in graph.edges(data=True):
-        print(f"  {source} -> {target}  via {data['permission']}")
-    visualise(graph)
+    account_file = sys.argv[1] if len(sys.argv) > 1 else "account.json"
+    identities = load_identities(account_file)
+    graph = build_graph(identities)
+    print_report(graph, find_escalations(graph, identities))

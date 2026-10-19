@@ -149,7 +149,7 @@ verification stage.
 - NCC Group / PMapper — principal-mapping edge definitions
 - Pacu — AWS exploitation framework
 
-## Contribution per group member
+## Contribution per group member (~0.5 pages with own contribution)
 ### Mukunth
 ### Nils
 ### Dhruba

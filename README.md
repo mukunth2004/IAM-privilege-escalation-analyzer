@@ -19,7 +19,7 @@ and renders the result.
 
 *Escalation paths detected in a sample account: red = High, amber = Medium, gray = no path; each edge is labeled with the IAM permission that enables the hop.*
 
-## Features
+### Features
 
 - **23 escalation techniques** across five families (policy self-grant, credential
   theft, trust-policy manipulation, PassRole-to-compute, role chaining) — the
@@ -34,7 +34,7 @@ and renders the result.
 - **Tested** — 100% precision and recall with zero false positives on synthetic
   fixtures; all 23 rules exercised.
 
-## Pipeline
+### Pipeline
 
 | Stage | File | What it does |
 |-------|------|--------------|
@@ -45,7 +45,7 @@ and renders the result.
 | 5. Visualize | `visualize.py` | render the severity graph to PNG |
 
 ## Documentation for Testing
-## Install
+### Install
 
 ```bash
 git clone <your-repo-url>
@@ -58,7 +58,7 @@ pip install networkx matplotlib
 `networkx` is required for stages 2–4; `matplotlib` only for the visualization.
 The parser has no third-party dependencies.
 
-## Usage
+### Usage
 
 ```bash
 # Detect escalation paths in an account and print them, ranked by severity
@@ -71,7 +71,7 @@ python3 visualize.py account.json escalation_graph.png
 python3 evaluate.py
 ```
 
-### Input format
+#### Input format
 
 A single JSON file describing an account's identities and their policies — a
 simplified shape of `aws iam get-account-authorization-details`:
@@ -96,7 +96,7 @@ simplified shape of `aws iam get-account-authorization-details`:
 Roles may also carry a `trust_policy`. See `tests/`/`fixtures/` and the sample
 `account.json` / `account_full.json` for worked examples.
 
-### Example output
+#### Example output
 
 ```
 [High  ] (2-hop) alice
@@ -109,7 +109,7 @@ Roles may also carry a `trust_policy`. See `tests/`/`fixtures/` and the sample
       --[ iam:AttachRolePolicy ]-->  effective ADMIN
 ```
 
-## Escalation techniques
+### Escalation techniques
 
 | Family | Rules |
 |--------|-------|
@@ -121,7 +121,7 @@ Roles may also carry a `trust_policy`. See `tests/`/`fixtures/` and the sample
 
 Adding a technique means writing one `@rule`-decorated function in `rules.py`.
 
-## Testing
+### Testing
 
 ```bash
 python3 make_fixtures.py   # (re)build the test fixtures
@@ -136,15 +136,7 @@ python3 evaluate.py        # run the evaluation
 The clean baseline includes deliberate "near miss" identities (half a chain) to
 guard against false positives.
 
-## Roadmap
-
-- [ ] OIDC / federated-identity modeling (e.g. GitHub Actions web-identity
-      federation) and trust-policy misconfiguration rules (wildcard `sub`/`aud`).
-- [ ] Sandbox verification — attempt a subset of flagged paths in a live AWS
-      account (`boto3`) to confirm real exploitability.
-- [ ] Left-to-right layered graph layout.
-
-## Limitations
+### Limitations
 
 Static analysis does not (yet) evaluate `NotAction`/`NotResource`, IAM condition
 keys (outside the planned OIDC rules), service control policies, or permission
@@ -156,7 +148,3 @@ verification stage.
 - Rhino Security Labs — *AWS IAM Privilege Escalation Methods*
 - NCC Group / PMapper — principal-mapping edge definitions
 - Pacu — AWS exploitation framework
-
-## License
-
-MIT (or as required by the course).

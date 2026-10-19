@@ -1,7 +1,9 @@
 # IAM Privilege-Escalation Graph Analyzer
 
 ## Problem Statement
+TODO
 
+## Documentation of Project
 Detect hidden privilege-escalation paths in AWS IAM through graph-based analysis.
 
 IAM permissions are usually reviewed one policy at a time, but real escalation

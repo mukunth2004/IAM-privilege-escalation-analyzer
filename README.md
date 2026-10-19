@@ -44,6 +44,7 @@ and renders the result.
 | 4. Score | `scoring.py` | High / Medium / Low per path |
 | 5. Visualize | `visualize.py` | render the severity graph to PNG |
 
+## Documentation for Testing
 ## Install
 
 ```bash

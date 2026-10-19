@@ -148,3 +148,9 @@ verification stage.
 - Rhino Security Labs — *AWS IAM Privilege Escalation Methods*
 - NCC Group / PMapper — principal-mapping edge definitions
 - Pacu — AWS exploitation framework
+
+## Contribution per group member
+### Mukunth
+### Nils
+### Dhruba
+### Lisa

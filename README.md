@@ -1,7 +1,6 @@
 # IAM Privilege-Escalation Graph Analyzer
 
 ## Problem Statement
-## Reference
 
 Detect hidden privilege-escalation paths in AWS IAM through graph-based analysis.
 

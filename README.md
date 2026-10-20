@@ -159,7 +159,7 @@ The most important next step is the sandbox verification stage described above, 
 Beyond accuracy, the tool could be made easier to use on real accounts. Accepting the full output of `aws iam get-account-authorization-details`, rather than a simplified version, would let it run directly on exported account data, and testing it on real or larger accounts would show whether the results from the synthetic fixtures hold in practice. Finally, because each technique is a single `@rule` function in `rules.py`, the catalogue can grow as security researchers publish new escalation methods, keeping the tool relevant as AWS adds new services and permissions.
 
 ## AI Usage
-AI/LLM was used to generate introduction comments to the top of some code files, the starting docstring that is, and to check over some language of the readme. Github also auto fills some commit messages with AI generated summaries of the changes, so some commit messages are AI generated.
+AI/LLM was used to generate introduction comments to the top of some code files, the starting docstring that is, to make co-work and handing over code easier. AI was also used to check over some language of the readme. Github also auto fills some commit messages with AI generated summaries of the changes, so some commit messages are AI generated.
 
 ## References
 1. Gietzen, S. (2018) *AWS IAM Privilege Escalation – Methods and Mitigation*. Rhino Security Labs. Available at: https://rhinosecuritylabs.com/aws/aws-privilege-escalation-methods-mitigation/

@@ -36,13 +36,18 @@ and renders the result.
   theft, trust-policy manipulation, PassRole-to-compute, role chaining); the Rhino Security Labs catalogue (Gietzen, 2018), the same set PMapper (Steringer, 2018) and Pacu (Rhino Security Labs, 2018) implement.
 - **Multi-hop detection** — escalation is a path search to an `ADMIN` node, so
   chains no single rule describes (e.g. *assume a role that can make itself admin*)
-  are found automatically.
-- **Risk scoring** — every path is labeled High / Medium / Low from hop count and
-  blast radius.
+  are found automatically. Only the shortest path per identity is reported, so an
+  identity with more than one route to admin will only show one of them.
+- **Risk scoring** — every path is labeled High / Medium / Low. In practice the
+  label comes from the hop count alone: 1–2 hops is High, 3 or more is Medium.
+  `severity()` also takes a blast-radius argument (read, write, admin), but every
+  finding is by definition a path to admin, so `graph_analyser` always passes
+  `"admin"` and the other two levels do not occur in a normal run.
 - **Graph visualization** — findings rendered with severity-colored, permission-
   labeled edges.
 - **Tested** — 100% precision and recall with zero false positives on synthetic
-  fixtures; all 23 rules exercised.
+  fixtures; all 23 rules exercised. See Limitations for what that does and does
+  not show.
 
 ### Pipeline
 
@@ -66,7 +71,7 @@ source venv/bin/activate        # on Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-`networkx` is needed for the graph, rule and scoring stages, and `matplotlib` only for the visualization.
+`networkx` is needed for the graph stage and `matplotlib` only for the visualization. The parser, the rule engine and the scoring have no third-party dependencies.
 
 ### Usage
 Run the commands from the repository folder.

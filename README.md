@@ -157,7 +157,7 @@ The clean baseline includes deliberate "near miss" identities (half a chain) to 
 `evaluate.py` exits with code 0 when there are no false positives or false negatives, and 1 otherwise.
 
 #### Testing the parser
-`demo_parser.py` loads `alice_policy.json` and checks that the parser handles actions given as a list, permissions scoped to one resource, 'Deny' overriding 'Allow', default deny and a `NotAction` policy. The expected answers are:
+`demo_parser.py` loads `alice_policy.json` and checks that the parser handles actions given as a list, permissions scoped to one resource, `Deny` overriding `Allow`, default deny and a `NotAction` policy. The expected answers are:
 
 ```
 create a lambda?             True
@@ -172,12 +172,12 @@ can do everything?           False
 
 ### Limitations
 
-The tool performs static analysis, meaning it reasons about the policies as written rather than testing them against a live AWS account. It does not yet evaluate `NotAction` or `NotResource` elements, IAM condition keys (apart from the planned OIDC rules), service control policies or permission boundaries. Because these features can grant or restrict access, the results may differ from what AWS would actually allow: a reported path could in practice be blocked, and some real paths may go undetected. In addition, the input is a simplified version of the output from `aws iam get-account-authorization-details`, and the evaluation was carried out only on synthetic accounts built by us, so the 100% precision and recall reported above may not carry over to real accounts.
+The tool performs static analysis, meaning it reasons about the policies as written rather than testing them against a live AWS account. `NotAction` and `NotResource` elements are supported, but IAM condition keys (apart from the planned OIDC rules), service control policies and permission boundaries are not yet evaluated. A Condition block is read but ignored, so a conditional Allow is treated as always applying. Because these features can grant or restrict access, the results may differ from what AWS would actually allow: a reported path could in practice be blocked, and some real paths may go undetected. In addition, the input is a simplified version of the output from `aws iam get-account-authorization-details`, and the evaluation was carried out only on synthetic accounts built by us, so the 100% precision and recall reported above may not carry over to real accounts.
 
 The project does not currently include a sandbox, so none of its findings are verified against a real AWS environment. A sandbox would make it possible to recreate an account's identities and policies in an isolated setting and attempt each reported escalation path, confirming whether it actually works in real life. Without this step, the tool cannot tell a genuine path apart from one that AWS would block in practice, nor can it catch paths missed because of the blind spots described above. Adding such a verification stage is therefore the main way these limitations could be addressed.
 
 ### Future work
-The most important next step is the sandbox verification stage described above, which would confirm each reported path by actually proving it. Alongside this, the static analysis could be extended to evaluate `NotAction` and `NotResource` elements, IAM condition keys, service control policies and permission boundaries, bringing the results closer to how AWS actually decides access. The planned OIDC rules mentioned in the limitations belong to this same effort.
+The most important next step is the sandbox verification stage described above, which would confirm each reported path by actually proving it. Alongside this, the static analysis could be extended to evaluate IAM condition keys, service control policies and permission boundaries, bringing the results closer to how AWS actually decides access. Since the parser already reads each statement’s `Condition` block, evaluating condition keys is a natural first step. The planned OIDC rules mentioned in the limitations belong to this same effort.
 
 Beyond accuracy, the tool could be made easier to use on real accounts. Accepting the full output of `aws iam get-account-authorization-details`, rather than a simplified version, would let it run directly on exported account data, and testing it on real or larger accounts would show whether the results from the synthetic fixtures hold in practice. Finally, because each technique is a single `@rule` function in `rules.py`, the catalogue can grow as security researchers publish new escalation methods, keeping the tool relevant as AWS adds new services and permissions.
 

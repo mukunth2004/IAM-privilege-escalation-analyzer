@@ -29,7 +29,6 @@ OTHER_EDGE_COLOR = "#C8C8C8"
 NODE_SIZE = 1400
 EDGE_CURVE = "arc3"
 
-
 def worst_severity_per_edge(paths):
     edge_severity = {}
     for path in paths:
@@ -40,10 +39,8 @@ def worst_severity_per_edge(paths):
                 edge_severity[edge] = severity
     return edge_severity
 
-
 def nodes_of_type(graph, *types):
     return [n for n, data in graph.nodes(data=True) if data["type"] in types]
-
 
 def ring_layout(graph):
     """ADMIN in the centre, roles and groups on the inner ring, users on the outer ring."""
@@ -53,7 +50,6 @@ def ring_layout(graph):
         nodes_of_type(graph, "user"),
     ]
     return nx.shell_layout(graph, nlist=[ring for ring in rings if ring])
-
 
 def draw_nodes(graph, pos, ax):
     for node_type, shape in NODE_SHAPES.items():
@@ -85,7 +81,6 @@ def draw_nodes(graph, pos, ax):
         ax=ax,
     )
 
-
 def draw_edges(graph, pos, edge_severity, ax):
     for edge in graph.edges():
         severity = edge_severity.get(edge)
@@ -116,7 +111,6 @@ def draw_edges(graph, pos, edge_severity, ax):
         ax=ax,
     )
 
-
 def draw_legend(ax):
     node_entries = [
         Line2D(
@@ -139,7 +133,6 @@ def draw_legend(ax):
     )
     ax.legend(handles=node_entries + edge_entries, loc="upper left", fontsize=8)
 
-
 def render(account_file, out_png):
     identities = load_identities(account_file)
     graph = build_graph(identities)
@@ -152,7 +145,7 @@ def render(account_file, out_png):
     draw_legend(ax)
 
     ax.set_title(
-        f"IAM identity graph — {account_file}\n"
+        f"IAM identity graph for {account_file}\n"
         f"{len(paths)} escalation paths to ADMIN"
     )
     ax.margins(0.08)
@@ -161,7 +154,6 @@ def render(account_file, out_png):
     fig.savefig(out_png, dpi=150, bbox_inches="tight")
     plt.close(fig)
     print(f"wrote {out_png}  ({len(paths)} paths drawn)")
-
 
 if __name__ == "__main__":
     account_file = sys.argv[1] if len(sys.argv) > 1 else "account.json"

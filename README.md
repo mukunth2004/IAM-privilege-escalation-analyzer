@@ -170,6 +170,7 @@ AI/LLM was used to generate introduction comments to the top of some code files,
 
 ## Contribution per group member (~0.5 pages with own contribution)
 ### Mukunth
+I was responsible for building the rule engine (rules.py) and the test account data (account_full.json). The rule engine is where the actual escalation detection happens. I went through the Rhino Security Labs catalogue and implemented each technique as its own function, 23 in total across the five families (policy self-grant, credential theft, trust-policy manipulation, PassRole-to-compute, and role chaining). Each rule checks whether a given identity has the right combination of permissions to escalate, and if so, adds an edge to the graph. Getting the edge cases right took some iteration, especially around PassRole rules where you need both iam:PassRole on a specific role ARN and the corresponding compute permission (like lambda:CreateFunction or ec2:RunInstances) to actually exploit it. For the test data, I built account_full.json with around 18 identities that cover all 23 techniques, making sure each rule had at least one identity that triggers it, but also that identities with only half the required permissions don’t produce false positives.
 ### Nils
 ### Dhruba
 ### Lisa

@@ -179,15 +179,6 @@ can do everything?           False
 
 The tool performs static analysis, meaning it reasons about the policies as written rather than testing them against a live AWS account. `NotAction` and `NotResource` elements are supported, but IAM condition keys (apart from the planned OIDC rules), service control policies and permission boundaries are not yet evaluated. A `Condition` block is read but ignored, so a conditional Allow is treated as always applying. Because these features can grant or restrict access, the results may differ from what AWS would actually allow: a reported path could in practice be blocked, and some real paths may go undetected. In addition, the input is a simplified version of the output from `aws iam get-account-authorization-details`, and the evaluation was carried out only on synthetic accounts built by us, so the 100% precision and recall reported above may not carry over to real accounts.
 
-There are also some known gaps in the rules themselves, found by testing them against cases the fixtures do not cover:
-
-- The family A self-grant rules only match when the permission is granted on `Resource: "*"`. A grant scoped directly to the AdministratorAccess policy ARN is a real escalation and is currently missed.
-- Trust policies are matched by substring, so a role that trusts `.../user/alan` also matches a user called `al` and produces an edge that does not exist.
-- Only the shortest path to admin is reported for each identity, so alternative routes through the same identity are not shown.
-- Group membership is not modelled. Groups carry policies, but nothing records which users belong to them, and `AddUserToGroup` is the only rule that looks at groups at all.
-
-These matter for reading the evaluation numbers above. The fixtures were written alongside the rules, and each planted chain is built from the trigger conditions of the rule meant to catch it, so what the suite really shows is that every rule fires where it was designed to fire rather than that the rule set is complete.
-
 The project does not currently include a sandbox, so none of its findings are verified against a real AWS environment. A sandbox would make it possible to recreate an account's identities and policies in an isolated setting and attempt each reported escalation path, confirming whether it actually works in real life. Without this step, the tool cannot tell a genuine path apart from one that AWS would block in practice, nor can it catch paths missed because of the blind spots described above. Adding such a verification stage is therefore the main way these limitations could be addressed.
 
 ### Future work

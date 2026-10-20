@@ -26,7 +26,7 @@ and renders the result.
 
 ![Escalation graph — escalation paths highlighted by severity](docs/example_full.png)
 
-*Escalation paths detected in a sample account: red = High, amber = Medium, gray = no path; each edge is labeled with the IAM permission that enables the hop.*
+*Escalation paths detected in a sample account: red = High, orange = Medium, gray = no path; each edge is labeled with the IAM permission that enables the hop.*
 
 
 
@@ -170,3 +170,4 @@ Beyond accuracy, the tool could be made easier to use on real accounts. Acceptin
 ### Nils
 ### Dhruba
 ### Lisa
+We divided the work between us at the start and my contributions to the project were the graph analysis and visualisation python scripts and the problem statement, limitations and future work sections of this readme. In `graph_analyser.py`, I built the stage that turns the parsed permissions into a graph of who can take control of who. Each user and role is a node, and an edge is added whenever one identity can take over another, labelled with the permission that allows it. The tool then searches for paths to an `ADMIN` node, which means it can find escalation chains of several steps, and prints the results ranked by severity. The `visualize.py` draws these findings as a nice graph to clearly show the results. Paths are coloured red for High, orange for Medium and grey where there is no path, and each edge shows the permission behind it. Finally, I wrote the problem statement, the limitations and sandbox paragraphs, the future work section in this README.

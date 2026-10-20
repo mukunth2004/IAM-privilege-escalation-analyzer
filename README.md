@@ -22,7 +22,6 @@ graph of "who can gain control over whom," runs 23 documented escalation
 techniques against it, follows multi-hop chains, ranks each finding by severity,
 and renders the result.
 
-> Course project for DD2391 (Cybersecurity Project), KTH Royal Institute of Technology.
 
 ![Escalation graph, escalation paths highlighted by severity](docs/example_full.png)
 

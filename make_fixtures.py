@@ -85,9 +85,9 @@ def build_vulnerable():
 
     # --- Family B: credential theft (victim = alice, who can reach admin) ---
     ids += [
-        user("keythief",     [allow("iam:CreateAccessKey", USER("alice"))], expect=True),
-        user("login_creator",[allow("iam:CreateLoginProfile", USER("alice"))], expect=True),
-        user("login_updater",[allow("iam:UpdateLoginProfile", USER("alice"))], expect=True),
+        user("keythief",      [allow("iam:CreateAccessKey", USER("alice"))], expect=True),
+        user("login_creator", [allow("iam:CreateLoginProfile", USER("alice"))], expect=True),
+        user("login_updater", [allow("iam:UpdateLoginProfile", USER("alice"))], expect=True),
     ]
 
     # --- Family C: trust-policy manipulation ---
@@ -100,12 +100,12 @@ def build_vulnerable():
         user("alice",       [allow("lambda:CreateFunction"), allow("iam:PassRole", ROLE("admin-role"))], expect=True),
         user("ec2attacker", [allow("ec2:RunInstances"), allow("iam:PassRole", ROLE("ec2-role"))], expect=True),
         user("cfnattacker", [allow("cloudformation:CreateStack"), allow("iam:PassRole", ROLE("cfn-role"))], expect=True),
-        user("glueattacker",[allow("glue:CreateDevEndpoint"), allow("iam:PassRole", ROLE("glue-role"))], expect=True),
+        user("glueattacker", [allow("glue:CreateDevEndpoint"), allow("iam:PassRole", ROLE("glue-role"))], expect=True),
         user("dpattacker",  [allow("datapipeline:CreatePipeline"), allow("iam:PassRole", ROLE("dp-role"))], expect=True),
         user("smattacker",  [allow("sagemaker:CreateNotebookInstance"), allow("iam:PassRole", ROLE("sm-role"))], expect=True),
         user("cbattacker",  [allow("codebuild:CreateProject"), allow("iam:PassRole", ROLE("cb-role"))], expect=True),
         user("ecsattacker", [allow("ecs:RegisterTaskDefinition"), allow("ecs:RunTask"), allow("iam:PassRole", ROLE("ecs-role"))], expect=True),
-        user("codehijacker",[allow("lambda:UpdateFunctionCode")], expect=True),  # hijacks admin-role's Lambda
+        user("codehijacker", [allow("lambda:UpdateFunctionCode")], expect=True),  # hijacks admin-role's Lambda
     ]
 
     # --- Family E: role chaining ---

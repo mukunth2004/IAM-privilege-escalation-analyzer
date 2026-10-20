@@ -14,13 +14,9 @@ The proposal's worked examples we're matching (§6.1):
   * a long chain ending in read-only access   -> Low
 """
 
-BLAST_RANK = {"read": 1, "write": 2, "admin": 3}
-
 
 def severity(hops, blast):
     """Combine the two dials into one label."""
-    rank = BLAST_RANK.get(blast, 2)
-
     if blast == "admin":
         # Full admin is dangerous; a short path makes it urgent.
         return "High" if hops <= 2 else "Medium"

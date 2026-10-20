@@ -140,6 +140,20 @@ The rules are based on the techniques documented by Gietzen (2018).
 
 Adding a technique means writing one `@rule`-decorated function in `rules.py`.
 
+### Testing
+
+```bash
+python3 make_fixtures.py   # rebuild the fixtures (only needed after changing make_fixtures.py)
+python3 evaluate.py        # run the evaluation on both fixtures
+```
+
+| Fixture | Precision | Recall | False positives | Rules exercised |
+|---------|-----------|--------|-----------------|-----------------|
+| vulnerable (25 planted chains) | 100% | 100% | 0 | 23 / 23 |
+| clean baseline | 100% | 100% | 0 | 0 / 23 |
+
+The clean baseline includes deliberate "near miss" identities (half a chain) to guard against false positives.
+
 `evaluate.py` exits with code 0 when there are no false positives or false negatives, and 1 otherwise.
 
 #### Testing the parser

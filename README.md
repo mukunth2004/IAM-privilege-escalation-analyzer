@@ -56,35 +56,40 @@ and renders the result.
 
 ## Documentation for Testing
 ### Install
+(Requires Python 3.9 or newer)
 
 ```bash
-git clone <your-repo-url>
-cd iam-analyzer
+git clone https://github.com/mukunth2004/IAM-privilege-escalation-analyzer.git
+cd IAM-privilege-escalation-analyzer
 python3 -m venv venv
-source venv/bin/activate
-pip install networkx matplotlib
+source venv/bin/activate        # on Windows: venv\Scripts\activate
+pip install -r requirements.txt
 ```
 
-`networkx` is required for stages 2–4; `matplotlib` only for the visualization.
-The parser has no third-party dependencies.
+`networkx` is needed for the graph, rule and scoring stages, and `matplotlib` only for the visualization.
 
 ### Usage
+Run the commands from the repository folder.
 
 ```bash
-# Detect escalation paths in an account and print them, ranked by severity
+# Print the escalation paths in an account, ranked by severity
 python3 graph_analyser.py account_full.json
 
-# Render the findings as a colored graph
+# Draw the findings as a coloured graph and save it as a PNG
 python3 visualize.py account.json escalation_graph.png
 
-# Run the evaluation harness (precision / recall / false positives)
+# Show how the parser reads a single policy
+python3 demo_parser.py
+
+# Run the evaluation on the test fixtures
 python3 evaluate.py
 ```
 
+If no file is given, `graph_analyser.py` and `visualize.py` use `account.json`.
+
 #### Input format
 
-A single JSON file describing an account's identities and their policies — a
-simplified shape of `aws iam get-account-authorization-details`:
+A single JSON file that lists the account's identities and their policies. It is a simplified version of the output of `aws iam get-account-authorization-details`:
 
 ```json
 {
@@ -103,20 +108,23 @@ simplified shape of `aws iam get-account-authorization-details`:
 }
 ```
 
-Roles may also carry a `trust_policy`. See `tests/`/`fixtures/` and the sample
-`account.json` / `account_full.json` for worked examples.
+Each identity has a `name`, a `type` (`user`, `role` or `group`) and a `policy`. Roles can also have a `trust_policy` that says who is allowed to assume them.
+
+Each policy statement can use `Effect`, `Action` or `NotAction`, and `Resource` or `NotResource`. `Action` and `Resource` can be a single string or a list. Wildcards follow IAM rules, where `*` matches any characters and `?` matches exactly one. A `Condition` block is read but not evaluated, so a conditional Allow is treated as always applying.
+
+Note: the account ID is currently fixed to `123456789012` in `rules.py`, so resource ARNs in the input must use that ID.
 
 #### Example output
 
 ```
 [High  ] (2-hop) alice
-      --[ iam:PassRole + lambda:CreateFunction ]-->  admin-role
-      --[ is administrator ]-->  effective ADMIN
+        --[ iam:PassRole + lambda:CreateFunction (run as admin-role via lambda) ]-->  admin-role
+        --[ is administrator ]-->  effective ADMIN
 
 [Medium] (3-hop) dave
-      --[ sts:AssumeRole ]-->  stage-role
-      --[ sts:AssumeRole ]-->  deploy-role
-      --[ iam:AttachRolePolicy ]-->  effective ADMIN
+        --[ sts:AssumeRole ]-->  stage-role
+        --[ sts:AssumeRole ]-->  deploy-role
+        --[ iam:AttachRolePolicy (attach AdministratorAccess to self) ]-->  effective ADMIN
 ```
 
 ### Escalation techniques
@@ -124,28 +132,29 @@ The rules are based on the techniques documented by Gietzen (2018).
 
 | Family | Rules |
 |--------|-------|
-| A — Policy / self-grant | AttachUser/Role/GroupPolicy, PutUser/Role/GroupPolicy, CreatePolicyVersion, SetDefaultPolicyVersion, AddUserToGroup |
-| B — Credential theft | CreateAccessKey, CreateLoginProfile, UpdateLoginProfile |
-| C — Trust-policy manipulation | UpdateAssumeRolePolicy |
-| D — PassRole-to-compute | Lambda, EC2, CloudFormation, Glue, DataPipeline, SageMaker, CodeBuild, ECS, UpdateFunctionCode |
-| E — Role chaining | AssumeRole |
+| A: Policy / self-grant | AttachUser/Role/GroupPolicy, PutUser/Role/GroupPolicy, CreatePolicyVersion, SetDefaultPolicyVersion, AddUserToGroup |
+| B: Credential theft | CreateAccessKey, CreateLoginProfile, UpdateLoginProfile |
+| C: Trust-policy manipulation | UpdateAssumeRolePolicy |
+| D: PassRole-to-compute | Lambda, EC2, CloudFormation, Glue, DataPipeline, SageMaker, CodeBuild, ECS, UpdateFunctionCode |
+| E: Role chaining | AssumeRole |
 
 Adding a technique means writing one `@rule`-decorated function in `rules.py`.
 
-### Testing
+`evaluate.py` exits with code 0 when there are no false positives or false negatives, and 1 otherwise.
 
-```bash
-python3 make_fixtures.py   # (re)build the test fixtures
-python3 evaluate.py        # run the evaluation
+#### Testing the parser
+`demo_parser.py` loads `alice_policy.json` and checks that the parser handles actions given as a list, permissions scoped to one resource, 'Deny' overriding 'Allow', default deny and a `NotAction` policy. The expected answers are:
+
 ```
-
-| Fixture | Precision | Recall | False positives | Rules exercised |
-|---------|-----------|--------|-----------------|-----------------|
-| vulnerable (25 planted chains) | 100% | 100% | 0 | 23 / 23 |
-| clean baseline | 100% | 100% | 0 | 0 / 23 |
-
-The clean baseline includes deliberate "near miss" identities (half a chain) to
-guard against false positives.
+create a lambda?             True
+pass the admin-role?         True
+pass a different role?       False
+delete a role? (Deny wins)   False
+read an S3 bucket?           False
+launch an EC2 instance?      True
+attach a policy? (excluded)  False
+can do everything?           False
+```
 
 ### Limitations
 

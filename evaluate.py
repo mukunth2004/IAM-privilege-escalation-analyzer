@@ -1,13 +1,13 @@
 """
-Step 4.5 — Evaluation harness.
+Step 4.5 - Evaluation harness.
 
 Runs the analyzer against a tagged fixture and measures detection quality:
 
-  * true positives  — flagged AND should escalate
-  * false positives — flagged but should NOT (the number we most want at zero)
-  * false negatives — should escalate but was missed
+  * true positives  - flagged AND should escalate
+  * false positives - flagged but should NOT (the number we most want at zero)
+  * false negatives - should escalate but was missed
   * precision / recall
-  * rule coverage   — how many of the 23 rules actually fired
+  * rule coverage   - how many of the 23 rules actually fired
 
 Each fixture identity carries "expect": true/false as ground truth.
 
@@ -20,7 +20,6 @@ import sys
 
 from graph_analyser import load_identities, build_graph, find_escalations
 from rules import _RULES, is_admin, registered_rules
-
 
 def evaluate(path):
     raw = json.loads(open(path).read())
@@ -62,15 +61,14 @@ def evaluate(path):
     print(f"  recall:            {recall:.0%}")
     print()
     print(f"  rule coverage:     {len(fired)}/{len(_RULES)} rules fired")
-    # Only flag un-exercised rules on a fixture that HAS planted attacks; a clean
-    # baseline is supposed to fire nothing.
+    
+    # Only flag unexercised rules on a fixture that HAS planted attacks. A clean baseline is supposed to fire nothing.
     if expect:
         missed = [r for r in registered_rules() if r not in fired]
         if missed:
             print(f"  rules not exercised: {missed}")
     print()
     return len(fp), len(fn)
-
 
 if __name__ == "__main__":
     files = sys.argv[1:] or ["fixtures/vulnerable.json", "fixtures/clean.json"]

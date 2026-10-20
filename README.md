@@ -4,12 +4,12 @@ Detect hidden privilege-escalation paths in AWS IAM through graph-based analysis
 
 IAM permissions are usually reviewed one policy at a time, but real escalation
 comes from *combinations* of individually reasonable-looking permissions spread
-across users, roles, and groups. This tool models an entire account as a directed
-graph of "who can gain control over whom," runs 23 documented escalation
-techniques against it, follows multi-hop chains, ranks each finding by severity,
-and renders the result.
+across users, roles, and groups. This tool models an account as a directed graph
+of "who can gain control over whom" and searches it for paths that end in
+administrator access.
 
-> Course project for DD2391 (Cybersecurity Project), KTH Royal Institute of Technology.
+> Course project for DD2391 / DD2394 (Cybersecurity Overview / Cybersecurity
+> Project), KTH Royal Institute of Technology.
 
 ![Escalation graph — escalation paths highlighted by severity](docs/example_full.png)
 
@@ -17,18 +17,28 @@ and renders the result.
 
 ## Features
 
-- **23 escalation techniques** across five families (policy self-grant, credential
-  theft, trust-policy manipulation, PassRole-to-compute, role chaining) — the
-  Rhino Security Labs catalogue, the same set PMapper and Pacu implement.
-- **Multi-hop detection** — escalation is a path search to an `ADMIN` node, so
-  chains no single rule describes (e.g. *assume a role that can make itself admin*)
-  are found automatically.
-- **Risk scoring** — every path is labeled High / Medium / Low from hop count and
-  blast radius.
-- **Graph visualization** — findings rendered with severity-colored, permission-
-  labeled edges.
-- **Tested** — 100% precision and recall with zero false positives on synthetic
-  fixtures; all 23 rules exercised.
+**23 escalation techniques** in five families: policy self-grant, credential
+theft, trust-policy manipulation, PassRole-to-compute, and role chaining. The
+catalogue is the one from Rhino Security Labs, which PMapper and Pacu also
+implement.
+
+**Multi-hop detection.** Escalation is a path search to an `ADMIN` node, so
+chains that no single rule describes (assume a role that can then make itself
+admin) come out of the search for free. Only the shortest path per identity is
+reported, so an identity with two routes to admin will only show one of them.
+
+**Risk scoring.** Each path is labeled High, Medium or Low. In practice the
+label is decided by hop count alone: 1-2 hops is High, 3 or more is Medium.
+`scoring.severity()` takes a second blast-radius argument (read, write, admin),
+but every finding is by definition a path to admin, so `graph_analyser` always
+passes `"admin"` and the other two levels never come up in a normal run.
+
+**Graph visualization.** Findings render to a PNG with severity-colored edges,
+each labeled with the permission that enables the hop.
+
+**Evaluation harness.** `evaluate.py` scores the rules against the fixtures and
+exits nonzero on any false positive or negative, so it works as a CI gate. See
+[Testing](#testing) for what the numbers do and do not show.
 
 ## Pipeline
 
@@ -40,18 +50,23 @@ and renders the result.
 | 4. Score | `scoring.py` | High / Medium / Low per path |
 | 5. Visualize | `visualize.py` | render the severity graph to PNG |
 
+The numbering follows the order the stages were built, not the call order at
+runtime: `build_graph()` runs every rule to produce the edges, so stage 3 is
+what stage 2 consumes.
+
 ## Install
 
 ```bash
 git clone <your-repo-url>
-cd iam-analyzer
+cd IAM-privilege-escalation-analyzer
 python3 -m venv venv
 source venv/bin/activate
-pip install networkx matplotlib
+pip install -r requirements.txt
 ```
 
-`networkx` is required for stages 2–4; `matplotlib` only for the visualization.
-The parser has no third-party dependencies.
+`networkx` is required for the graph search, `matplotlib` only for the
+visualization. The parser, the rules and the scoring have no third-party
+dependencies.
 
 ## Usage
 
@@ -88,20 +103,22 @@ simplified shape of `aws iam get-account-authorization-details`:
 }
 ```
 
-Roles may also carry a `trust_policy`. See `tests/`/`fixtures/` and the sample
-`account.json` / `account_full.json` for worked examples.
+Roles may also carry a `trust_policy`. See `fixtures/` and the sample
+`account.json` / `account_full.json` for worked examples. Identities in the
+fixtures carry an extra `expect` flag, which is ground truth for `evaluate.py`
+and is ignored everywhere else.
 
 ### Example output
 
 ```
-[High  ] (2-hop) alice
-      --[ iam:PassRole + lambda:CreateFunction ]-->  admin-role
-      --[ is administrator ]-->  effective ADMIN
+  [High  ] (2-hop) alice
+        --[ iam:PassRole + lambda:CreateFunction (run as admin-role via lambda) ]-->  admin-role
+        --[ is administrator ]-->  effective ADMIN
 
-[Medium] (3-hop) dave
-      --[ sts:AssumeRole ]-->  stage-role
-      --[ sts:AssumeRole ]-->  deploy-role
-      --[ iam:AttachRolePolicy ]-->  effective ADMIN
+  [Medium] (3-hop) dave
+        --[ sts:AssumeRole ]-->  stage-role
+        --[ sts:AssumeRole ]-->  deploy-role
+        --[ iam:AttachRolePolicy (attach AdministratorAccess to self) ]-->  effective ADMIN
 ```
 
 ## Escalation techniques
@@ -131,6 +148,12 @@ python3 evaluate.py        # run the evaluation
 The clean baseline includes deliberate "near miss" identities (half a chain) to
 guard against false positives.
 
+Those numbers need a caveat. The fixtures were written alongside the rules, and
+each planted chain is built from the trigger conditions of the rule meant to
+catch it, so what the suite really shows is that every rule fires where it was
+designed to fire. It cannot find a technique nobody thought of, and it does not
+exercise the gaps listed under Limitations.
+
 ## Roadmap
 
 - [ ] OIDC / federated-identity modeling (e.g. GitHub Actions web-identity
@@ -141,10 +164,24 @@ guard against false positives.
 
 ## Limitations
 
-Static analysis does not (yet) evaluate `NotAction`/`NotResource`, IAM condition
-keys (outside the planned OIDC rules), service control policies, or permission
-boundaries. These are documented blind spots and the target of the sandbox-
-verification stage.
+Known gaps in the rules themselves:
+
+- The family A self-grant rules only match when the permission is granted on
+  `Resource: "*"`. A grant scoped to the AdministratorAccess policy ARN is a
+  real escalation and is currently missed.
+- Trust policies are matched by substring, so a role trusting `.../user/alan`
+  also matches a user called `al` and produces an edge that does not exist.
+- Only the shortest path to admin is reported per identity, so alternative
+  routes through the same identity stay invisible.
+- Group membership is not modeled. Groups carry policies, but nothing records
+  which users belong to them; `AddUserToGroup` is the only rule that looks at
+  groups at all.
+- The account ID is hardcoded in `rules.py`, so input files have to use the same
+  one or the ARN-matching rules stop firing.
+
+Not modeled at all: `NotAction`/`NotResource`, IAM condition keys (outside the
+planned OIDC rules), service control policies, and permission boundaries. These
+are the target of the sandbox-verification stage.
 
 ## References
 

@@ -1,5 +1,5 @@
 """
-Step 4.5 — Evaluation harness (proposal §8).
+Step 4.5 — Evaluation harness.
 
 Runs the analyzer against a tagged fixture and measures detection quality:
 

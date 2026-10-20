@@ -134,6 +134,9 @@ def draw_legend(ax):
     ax.legend(handles=node_entries + edge_entries, loc="upper left", fontsize=8)
 
 def render(account_file, out_png):
+    """
+    Render the escalation graph for a given account JSON file to a PNG.
+    """
     identities = load_identities(account_file)
     graph = build_graph(identities)
     paths = find_escalations(graph, identities)

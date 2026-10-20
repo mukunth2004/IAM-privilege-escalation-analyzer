@@ -31,6 +31,7 @@ def load_identities(path):
 
 
 def build_graph(identities):
+    """Build a directed graph of identities and their escalation edges."""
     graph = nx.DiGraph()
     graph.add_node(ADMIN, type="target")
     for name, identity in identities.items():

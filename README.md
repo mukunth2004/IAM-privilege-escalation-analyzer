@@ -24,7 +24,7 @@ and renders the result.
 
 > Course project for DD2391 (Cybersecurity Project), KTH Royal Institute of Technology.
 
-![Escalation graph — escalation paths highlighted by severity](docs/example_full.png)
+![Escalation graph, escalation paths highlighted by severity](docs/example_full.png)
 
 *Escalation paths detected in a sample account: red = High, orange = Medium, gray = no path; each edge is labeled with the IAM permission that enables the hop.*
 
@@ -34,18 +34,18 @@ and renders the result.
 
 - **23 escalation techniques** across five families (policy self-grant, credential
   theft, trust-policy manipulation, PassRole-to-compute, role chaining); the Rhino Security Labs catalogue (Gietzen, 2018), the same set PMapper (Steringer, 2018) and Pacu (Rhino Security Labs, 2018) implement.
-- **Multi-hop detection** — escalation is a path search to an `ADMIN` node, so
+- **Multi-hop detection**: escalation is a path search to an `ADMIN` node, so
   chains no single rule describes (e.g. *assume a role that can make itself admin*)
   are found automatically. Only the shortest path per identity is reported, so an
   identity with more than one route to admin will only show one of them.
-- **Risk scoring** — every path is labeled High / Medium / Low. In practice the
+- **Risk scoring**: every path is labeled High / Medium / Low. In practice the
   label comes from the hop count alone: 1–2 hops is High, 3 or more is Medium.
   `severity()` also takes a blast-radius argument (read, write, admin), but every
   finding is by definition a path to admin, so `graph_analyser` always passes
   `"admin"` and the other two levels do not occur in a normal run.
-- **Graph visualization** — findings rendered with severity-colored, permission-
+- **Graph visualization**: findings rendered with severity-colored, permission-
   labeled edges.
-- **Tested** — 100% precision and recall with zero false positives on synthetic
+- **Tested**: 100% precision and recall with zero false positives on synthetic
   fixtures; all 23 rules exercised. See Limitations for what that does and does
   not show.
 

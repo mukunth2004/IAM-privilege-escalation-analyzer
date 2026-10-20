@@ -9,11 +9,11 @@ The Target can be:
 
 The techniques are grouped into five families:
 
-  A. Policy / self-grant       — give yourself admin by editing IAM policies
-  B. Credential theft          — mint credentials for a more privileged identity
-  C. Trust-policy manipulation — rewrite a role's trust so you can assume it
-  D. PassRole-to-compute       — run code as a role by handing it to a service
-  E. Role chaining             — assume a role you're already trusted by
+  A. Policy / self-grant       : give yourself admin by editing IAM policies
+  B. Credential theft          : mint credentials for a more privileged identity
+  C. Trust-policy manipulation : rewrite a role's trust so you can assume it
+  D. PassRole-to-compute       : run code as a role by handing it to a service
+  E. Role chaining             : assume a role you're already trusted by
 """
 
 from parser import allows
@@ -78,7 +78,7 @@ def _trust_allows_service(role, service):
             return True
     return False
 
-# Family A — Policy / self-grant techniques (all land at ADMIN)
+# Family A - Policy / self-grant techniques (all land at ADMIN)
 
 @rule
 def attach_user_policy(name, identity, identities):
@@ -146,7 +146,7 @@ def add_user_to_group(name, identity, identities):
             yield ADMIN, f"iam:AddUserToGroup (join admin group '{gname}')"
 
 
-# Family B — Credential theft (land on ANOTHER identity, then chain onward)
+# Family B : Credential theft (land on ANOTHER identity, then chain onward)
 
 @rule
 def create_access_key(name, identity, identities):
@@ -176,7 +176,7 @@ def update_login_profile(name, identity, identities):
 
 
 
-# Family C — Trust-policy manipulation (land on a role)
+# Family C : Trust-policy manipulation (land on a role)
 
 @rule
 def update_assume_role_policy(name, identity, identities):
@@ -188,7 +188,7 @@ def update_assume_role_policy(name, identity, identities):
             yield rname, f"iam:UpdateAssumeRolePolicy (rewrite trust of {rname}, then assume it)"
 
 
-# Family D — PassRole-to-compute (land on the role the service will run as)#
+# Family D : PassRole-to-compute (land on the role the service will run as)#
 
 _COMPUTE_SERVICES = [
     ("PassRoleToLambda",         ["lambda:CreateFunction"],                          "lambda.amazonaws.com"),
@@ -233,7 +233,7 @@ def update_lambda_code(name, identity, identities):
         if role["type"] == "role" and _trust_allows_service(role, "lambda.amazonaws.com"):
             yield rname, f"lambda:UpdateFunctionCode (hijack a Lambda running as {rname})"
 
-# Family E — Role chaining
+# Family E : Role chaining
 
 @rule
 def assume_role(name, identity, identities):

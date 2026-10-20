@@ -1,11 +1,13 @@
 """
-Build the test fixtures (proposal §8):
+Build the test fixtures:
 
-  fixtures/vulnerable.json  — one planted escalation chain per implemented rule,
+  fixtures/vulnerable.json  : one planted escalation chain per implemented rule,
                               plus benign identities. Each identity is tagged
                               "expect": true/false = should it reach admin?
-  fixtures/clean.json       — no escalation paths, incl. "near miss" identities
+  fixtures/clean.json       : no escalation paths, incl. "near miss" identities
                               that have half of a chain (to catch false positives).
+
+This file is not part of the analyzer itself, but is used to generate the test fixtures for evaluation.
 
 Run:  python3 make_fixtures.py
 """
@@ -15,38 +17,30 @@ import os
 
 ACCT = "123456789012"
 
-
 def allow(action, resource="*"):
     return {"Effect": "Allow", "Action": action, "Resource": resource}
-
 
 def user(name, statements, expect):
     return {"name": name, "type": "user", "expect": expect,
             "policy": {"Statement": statements}}
 
-
 def role(name, statements, trust, expect):
     return {"name": name, "type": "role", "expect": expect,
             "policy": {"Statement": statements}, "trust_policy": {"Statement": trust}}
-
 
 def group(name, statements, expect):
     return {"name": name, "type": "group", "expect": expect,
             "policy": {"Statement": statements}}
 
-
 def trust_service(svc):
     return [{"Effect": "Allow", "Principal": {"Service": svc}, "Action": "sts:AssumeRole"}]
-
 
 def trust_principal(*arns):
     return [{"Effect": "Allow", "Principal": {"AWS": list(arns)}, "Action": "sts:AssumeRole"}]
 
-
 ADMIN_STMT = [allow("*")]
 ROLE = lambda n: f"arn:aws:iam::{ACCT}:role/{n}"
 USER = lambda n: f"arn:aws:iam::{ACCT}:user/{n}"
-
 
 def build_vulnerable():
     ids = []
@@ -118,18 +112,16 @@ def build_vulnerable():
 
     return {"account_id": ACCT, "identities": ids}
 
-
 def build_clean():
     ids = [
         user("reader",   [allow("s3:GetObject"), allow("s3:ListBucket")], expect=False),
         user("watcher",  [allow("cloudwatch:GetMetricData"), allow("logs:GetLogEvents")], expect=False),
-        # NEAR MISSES — half a chain, must NOT be flagged (false-positive test):
+        # NEAR MISSES: half a chain, must NOT be flagged (false-positive test):
         user("half1", [allow("lambda:CreateFunction")], expect=False),               # create but no PassRole
         user("half2", [allow("iam:PassRole", ROLE("some-role"))], expect=False),      # PassRole but no create
         role("scoped-role", [allow("s3:GetObject")], trust_service("ec2.amazonaws.com"), expect=False),
     ]
     return {"account_id": ACCT, "identities": ids}
-
 
 if __name__ == "__main__":
     os.makedirs("fixtures", exist_ok=True)

@@ -2,7 +2,16 @@
 
 ## Problem Statement
 TODO
+## General Introduction of the Project
+Permissions in AWS are managed through IAM, which decides what every user, role, and service is allowed to do. On paper this sounds simple: you write policies that say “this person can do that thing,” and AWS enforces them. In practice, accounts grow to hundreds of users and roles, each with a handful of policies, and nobody can hold the whole picture in their head. Permissions that look harmless on their own start to interact in ways no one intended.
 
+The problem we wanted to tackle is privilege escalation. This is when someone who was only given limited access manages to turn that access into much more, often all the way to full administrator, without anyone ever handing them admin rights. The reason it’s easy to miss is that the dangerous part is rarely a single permission. It’s a combination. An example: being allowed to create a Lambda function is fine, and being allowed to pass a role to a service is fine, but put them together and you can create a function, attach an admin role to it, and run code as that admin role. Neither permission looks alarming in a review. The chain does.
+
+Reviewing policies one at a time doesn’t catch this, because the danger lives in the relationships between identities, not inside any one of them. That’s the idea behind this project. Instead of checking policies individually, we model the whole account as a graph, every user and role is a node, and we draw a connection whenever one identity can take control of another. Once the account is a graph, finding an escalation becomes a path finding problem: is there a route from an ordinary user to administrator? If there is, the tool reports it, along with each step in the chain and the specific permission that made that step possible.
+
+The tool reads a set of IAM policies, builds this graph, and runs a set of 23 known escalation techniques against it. These aren’t invented; they’re documented methods that security researchers have published and that real attackers use. For each path it finds, it works out how serious it is based on how many steps the attacker needs and how much power they end up with, and labels it High, Medium, or Low so that whoever is reviewing the account knows what to fix first. Finally it draws the result as a diagram, with the dangerous paths highlighted.
+
+We tested the tool against two kinds of accounts we built ourselves: one deliberately seeded with an escalation path for every technique, and a clean one with none. On the first it found every planted path; on the second it raised no false alarms. This matters because being quiet on safe setups is as important as catching the real problems.
 ## Documentation of Project
 Detect hidden privilege-escalation paths in AWS IAM through graph-based analysis.
 

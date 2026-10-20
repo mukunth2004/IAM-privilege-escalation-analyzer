@@ -1,4 +1,5 @@
 # IAM Privilege-Escalation Graph Analyzer
+By _Dhruba Das, Lisa Engström, Mukunth Sriram, Nils Malmberg_
 ## General Introduction of the Project
 Permissions in AWS are managed through IAM, which decides what every user, role, and service is allowed to do. On paper this sounds simple: you write policies that say “this person can do that thing,” and AWS enforces them. In practice, accounts grow to hundreds of users and roles, each with a handful of policies, and nobody can hold the whole picture in their head. Permissions that look harmless on their own start to interact in ways no one intended.
 

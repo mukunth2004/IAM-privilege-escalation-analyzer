@@ -81,7 +81,7 @@ Run the commands from the repository folder.
 python3 graph_analyser.py account_full.json
 
 # Draw the findings as a coloured graph and save it as a PNG
-python3 visualize.py account.json escalation_graph.png
+python3 visualize.py account_full.json escalation_graph.png
 
 # Show how the parser reads a single policy
 python3 demo_parser.py
